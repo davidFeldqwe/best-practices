@@ -1,0 +1,17 @@
+{
+    "name": "best-practices",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+      "format": "prettier --write .",
+      "format:check": "prettier --check ."
+    },
+    "keywords": [],
+    "devDependencies": {
+      "prettier": "^3.3.3",
+      "prettier-plugin-css-order": "^2.1.2",
+      "prettier-plugin-organize-imports": "^3.2.4",
+      "turbo": "^2.0.9"
+    },
+    "packageManager": "pnpm@9.6.0"
+}

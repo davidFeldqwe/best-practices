@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "development"
+  pull_request:
+    types:
+      - "opened"
+      - "synchronize"
+
+jobs:
+  ci:
+    name: "Continuous Integration"
+    runs-on: "self-hosted"
+
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+        with:
+          fetch-depth: 2
+
+      - name: "Turbo Cache"
+        uses: "actions/cache@v4"
+        with:
+          path: ".turbo"
+          key: "${{ runner.os }}-turbo-${{ github.sha }}"
+          restore-keys: "${{ runner.os }}-turbo-"
+
+      - name: "Setup NodeJS"
+        uses: "actions/setup-node@v4"
+        with:
+          node-version: 20
+
+      - name: "Setup PNPM"
+        uses: "pnpm/action-setup@v2"
+        with:
+          run_install: false
+          dest: "${{ runner.temp }}/.pnpm"
+
+      - name: "Install Dependencies"
+        run: "pnpm install"
+
+      - name: "Lint + StyleLint + File Lint"
+        run: "pnpm exec turbo lint stylelint ls-lint --cache-dir=.turbo"
+
+      - name: "Check Spelling"
+        run: "pnpm exec turbo spell --cache-dir=.turbo"
+
+      - name: "Check Formatting"
+        run: "pnpm exec turbo format:check --cache-dir=.turbo"
+
+      - name: "Check Build"
+        run: "pnpm exec turbo build --cache-dir=.turbo"
+
+      - name: "Check For Unused Code"
+        run: "pnpm exec turbo knip --cache-dir=.turbo"
+
+      # - name: "Unit Tests"
+      #   run: "pnpm exec turbo test"
+
+      # - name: "End-to-End Tests"
+      #   uses: "cypress-io/github-action@v6"
+      #   with:
+      #     install: false
+      #     wait-on: "http://127.0.0.1:8080/api/health"
+      #     wait-on-timeout: 120
+      #     start: |
+      #       pnpm --dir clients/app e2e
+      #       pnpm --dir server e2e
